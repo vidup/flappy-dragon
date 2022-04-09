@@ -1,7 +1,7 @@
 use bracket_lib::prelude::*;
 
 pub struct Player {
-    x: i32,
+    pub x: i32,
     pub y: i32,
     velocity: f32,
 }
@@ -17,7 +17,7 @@ impl Player {
 
     /** This function renders the player as a yellow "@" character */
     pub fn render(&mut self, ctx: &mut BTerm) {
-        ctx.set(self.x, self.y, YELLOW, BLACK, to_cp437('@'));
+        ctx.set(5, self.y, YELLOW, BLACK, to_cp437('@'));
     }
 
     pub fn apply_gravity(&mut self) {

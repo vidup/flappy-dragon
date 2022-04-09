@@ -1,2 +1,2 @@
-mod obstacle;
+pub mod obstacle;
 pub mod player;

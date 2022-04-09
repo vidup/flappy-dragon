@@ -1,4 +1,7 @@
+use crate::game_objects::obstacle::Obstacle;
 use crate::game_objects::player::Player;
+use crate::{SCREEN_HEIGHT, SCREEN_WIDTH};
+
 use bracket_lib::prelude::BTerm;
 use bracket_lib::prelude::GameState;
 use bracket_lib::prelude::VirtualKeyCode;
@@ -7,7 +10,6 @@ use bracket_lib::prelude::NAVY;
 pub enum GameMode {
     Menu,
     Playing,
-    Paused,
     Over,
 }
 
@@ -15,7 +17,9 @@ pub enum GameMode {
 pub struct State {
     mode: GameMode,
     player: Player,
+    obstacle: Obstacle,
     frame_time: f32,
+    score: i32,
 }
 
 fn listen_to_menu_inputs(state: &mut State, ctx: &mut BTerm) {
@@ -35,6 +39,8 @@ impl State {
         State {
             mode: GameMode::Menu,
             player: Player::new(5, 25),
+            obstacle: Obstacle::new(SCREEN_WIDTH, 0),
+            score: 0,
             frame_time: 0.0,
         }
     }
@@ -42,7 +48,25 @@ impl State {
     fn restart(&mut self) {
         self.mode = GameMode::Playing;
         self.player = Player::new(5, 25);
+        self.obstacle = Obstacle::new(SCREEN_WIDTH, 0);
+        self.score = 0;
         self.frame_time = 0.0;
+    }
+
+    fn check_collision(&mut self) {
+        let is_behind_obstacle = self.player.x > self.obstacle.x;
+
+        if is_behind_obstacle {
+            self.score += 1;
+            self.obstacle = Obstacle::new(self.player.x + SCREEN_WIDTH, self.score);
+        }
+
+        let is_hitting_wall = self.obstacle.is_hitting(&self.player);
+        let is_below_ground = self.player.y > SCREEN_HEIGHT;
+
+        if is_hitting_wall || is_below_ground {
+            self.mode = GameMode::Over;
+        }
     }
 
     fn playing(&mut self, ctx: &mut BTerm) {
@@ -60,11 +84,12 @@ impl State {
         }
 
         self.player.render(ctx);
-        ctx.print_centered(5, "Press SPACE to flap.");
 
-        if self.player.y >= crate::SCREEN_HEIGHT {
-            self.mode = GameMode::Over;
-        }
+        ctx.print_centered(5, "Press SPACE to flap.");
+        ctx.print_centered(8, &format!("Score: {}", self.score));
+
+        self.obstacle.render(ctx, self.player.x);
+        self.check_collision();
     }
 
     fn main_menu(&mut self, ctx: &mut BTerm) {
@@ -73,10 +98,6 @@ impl State {
         ctx.print_centered(10, "Press [Q] to quit");
 
         listen_to_menu_inputs(self, ctx)
-    }
-
-    fn paused(&mut self, ctx: &mut BTerm) {
-        ctx.print(1, 1, "Paused");
     }
 
     fn over(&mut self, ctx: &mut BTerm) {
@@ -98,9 +119,6 @@ impl GameState for State {
             }
             GameMode::Playing => {
                 self.playing(ctx);
-            }
-            GameMode::Paused => {
-                self.paused(ctx);
             }
             GameMode::Over => {
                 self.over(ctx);
