@@ -1,5 +1,5 @@
 use bracket_lib::prelude::*;
-mod player;
+mod game_objects;
 mod state;
 
 /** GAME CONSTANTS */

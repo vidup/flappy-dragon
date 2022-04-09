@@ -1,4 +1,4 @@
-use crate::player::Player;
+use crate::game_objects::player::Player;
 use bracket_lib::prelude::BTerm;
 use bracket_lib::prelude::GameState;
 use bracket_lib::prelude::VirtualKeyCode;
