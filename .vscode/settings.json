@@ -1,0 +1,7 @@
+{
+    "rust-client.rustupPath": "C:/Users/VictorDupuy/.cargo/bin/rustup",
+    "[rust]": {
+        "editor.formatOnSave": true,
+    },
+    "rust-analyzer.checkOnSave.command": "clippy"
+}
